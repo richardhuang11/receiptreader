@@ -2,7 +2,7 @@ import requests
 import json
 import base64
 import re
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 with open("/Users/Richard/Documents/key.txt") as f:
     key = json.load(f)
@@ -147,9 +147,30 @@ def group_by_y(filtered_item_names):
       grouped_items[buffer_4].append(item['description'])
     else:
       grouped_items[top_left].append(item['description'])
+  for item in grouped_items:
+    grouped_items[item] = list(OrderedDict.fromkeys(grouped_items[item]))
   return grouped_items
 
 grouped_items = group_by_y(item_names)
-print(grouped_items)
+
+def grouped_items_to_items_and_prices(grouped_items):
+  regx = r"\d{0,2}\.\d{2}"
+  items = []
+  prices = []
+  for item in grouped_items: #iterate thru each key
+    count = 0
+    temp = ""
+    for elem in grouped_items[item]: #iterate thru each element in list 
+      if re.search(regx, elem) != None:
+        prices.append(elem) 
+      else:
+        temp = temp + " " + elem
+    items.append(temp[1:]) 
+  return items, prices 
+items, prices = grouped_items_to_items_and_prices(grouped_items)
+item_price = {}
+for i in range(len(items)):
+  item_price[items[i]] = prices[i]
+print(item_price)
 
 
