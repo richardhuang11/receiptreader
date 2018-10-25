@@ -174,9 +174,12 @@ def grouped_items_to_items_and_prices(grouped_items):
   return item_price
 
 item_price = grouped_items_to_items_and_prices(grouped_items)
-for item in item_price:
-  filtered_item = re.sub(r'[^A-Za-z\s]+', '', item).lstrip(' ').rstrip(' ')
-  item_price[filtered_item] = item_price.pop(item) 
+def filter_item_names(item_price):
+  for item in item_price:
+    filtered_item = re.sub(r'[^A-Za-z\s]+', '', item).lstrip(' ').rstrip(' ')
+    item_price[filtered_item] = item_price.pop(item) 
+  return item_price
+item_price = filter_item_names(item_price)
 print(item_price)
 
 def get_person_price():
@@ -189,10 +192,10 @@ def get_person_price():
     while True:
       item = input("What is an item you bought? ")
       person_item[name].append(item)
-      person_quit = input("Done? ")
+      person_quit = input("Is that it? ")
       if person_quit in quit_words:
         break
-    quit = input("Exit? ")
+    quit = input("Is everyone accounted for? ")
     if quit in quit_words:
       break
   return person_item
@@ -221,7 +224,7 @@ def payouts(person_item, total_counts, item_price):
 payouts = payouts(person_item, total_counts, item_price)
 
 for payout in payouts:
-  print(payout, payouts[payout])
+  print(str(payout) + ' pays ' + str(payouts[payout]))
 
 
 
