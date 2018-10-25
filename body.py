@@ -173,10 +173,8 @@ def grouped_items_to_items_and_prices(grouped_items):
 
 item_price = grouped_items_to_items_and_prices(grouped_items)
 
-print(item_price)
-
 def get_person_price():
-  person_price = defaultdict(list)
+  person_item = defaultdict(list)
   quit_words = ["yes", "Yes", "y", "Y", "YES"]
   quit = "no"
   while True:
@@ -184,38 +182,40 @@ def get_person_price():
     person_quit = "no"
     while True:
       item = input("What is an item you bought? ")
-      person_price[name].append(item)
+      person_item[name].append(item)
       person_quit = input("Done? ")
       if person_quit in quit_words:
         break
     quit = input("Exit? ")
     if quit in quit_words:
       break
-  return person_price
+  return person_item
 
-person_price = get_person_price()
-print(person_price)
+person_item = get_person_price()
 
-def get_total_counts(person_price, item_price):
-  item_counts = defaultdict(list)
+def get_total_counts(person_item, item_price):
+  item_counts = defaultdict(int)
   for item in item_price:
-    item_counts[item] = [0]
+    item_counts[item] = 0
   for item in item_price:
-    for person in person_price:
-      if item in person_price[person]:
-        item_counts[item][0] += 1
+    for person in person_item:
+      if item in person_item[person]:
+        item_counts[item] += 1
   return item_counts
 
-total_counts = get_total_counts(person_price, item_price)
-print(total_counts)
+total_counts = get_total_counts(person_item, item_price)
 
-def payouts(person_price, total_counts, item_price):
+def payouts(person_item, total_counts, item_price):
   person_payouts = defaultdict(int)
-  for person in person_price:
-    person_payouts[person] += 1
+  for person in person_item:
+    for item in person_item[person]: #for each item the person bought
+      person_payouts[person] += round(float(item_price[item])*1.0925/total_counts[item],2)
+  return person_payouts
 
+payouts = payouts(person_item, total_counts, item_price)
 
-
+for payout in payouts:
+  print(payout, payouts[payout])
 
 
 
