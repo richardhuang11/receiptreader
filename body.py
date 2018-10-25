@@ -7,8 +7,8 @@ from collections import defaultdict, OrderedDict
 with open("/Users/Richard/Documents/key.txt") as f:
     key = json.load(f)
 
-input_file = "receipt-1-1.png"
-image_file = "receipt-1-1.png"
+# input_file = "receipt-1-1.png"
+input_file = "tj.jpg"
 with open(input_file, 'rb') as image:
     contents = image.read()
 encoded_string = base64.b64encode(contents).decode('UTF-8')
@@ -29,7 +29,7 @@ body = {
 json_body = json.dumps(body)
 r = requests.post("https://vision.googleapis.com/v1/images:annotate?key="
                   +key, json_body)
-#print(r.text)
+# print(r.text)
 
 responses = json.loads(r.text)['responses'][0]
 text_annotations = responses['textAnnotations']
@@ -53,7 +53,7 @@ def get_coordinates(prices_text_annotations):
   for item_dict in prices_text_annotations:
     coordinates = item_dict['boundingPoly']['vertices'][0]
     y_coordinates.append(coordinates['y'])
-    for i in range(-2,2): #buffer
+    for i in range(-5,5): #buffer
       y_coordinates.append(int(coordinates['y']) + i)
 
   return y_coordinates
@@ -76,7 +76,7 @@ item_names = get_item_names(text_annotations, y_coords)
 #words that indicate the beginning of junk portion we don't want
 blacklist = [r"[Mm][Aa][Ss][Tt][Ee][Rr][Cc][Aa][Rr][Dd]", r"[Vv][Ii][Ss][Aa]",
             r"[Ss]?[Uu]?[Bb]?[Tt][Oo][Tt][Aa][Ll]", r"[Ss][Aa][Ll][Ee][Ss]?",
-            r"[Tt][Aa][Xx]", r"[Ss][Tt][Aa][Tt][Ee]", r"[Ll][Oo][Cc][Aa][Ll]"]
+            r"[Tt][Aa][Xx]", r"[Ss][Tt][Aa][Tt][Ee]", r"[Ll][Oo][Cc][Aa][Ll]", r"SUBTOTAL"]
 
 #want to get the y coordinates of the items that are in blacklist
 # def get_blacklist_y_coords(item_names):
@@ -167,11 +167,17 @@ def grouped_items_to_items_and_prices(grouped_items):
       else:
         temp = temp + " " + elem
     items.append(temp[1:]) 
+
+  items = items[:len(prices)]
   for i in range(len(items)):
     item_price[items[i]] = prices[i]
   return item_price
 
 item_price = grouped_items_to_items_and_prices(grouped_items)
+for item in item_price:
+  filtered_item = re.sub(r'[^A-Za-z\s]+', '', item).lstrip(' ').rstrip(' ')
+  item_price[filtered_item] = item_price.pop(item) 
+print(item_price)
 
 def get_person_price():
   person_item = defaultdict(list)
