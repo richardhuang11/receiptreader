@@ -154,6 +154,7 @@ def group_by_y(filtered_item_names):
 grouped_items = group_by_y(item_names)
 
 def grouped_items_to_items_and_prices(grouped_items):
+  item_price = {}
   regx = r"\d{0,2}\.\d{2}"
   items = []
   prices = []
@@ -166,11 +167,56 @@ def grouped_items_to_items_and_prices(grouped_items):
       else:
         temp = temp + " " + elem
     items.append(temp[1:]) 
-  return items, prices 
-items, prices = grouped_items_to_items_and_prices(grouped_items)
-item_price = {}
-for i in range(len(items)):
-  item_price[items[i]] = prices[i]
+  for i in range(len(items)):
+    item_price[items[i]] = prices[i]
+  return item_price
+
+item_price = grouped_items_to_items_and_prices(grouped_items)
+
 print(item_price)
+
+def get_person_price():
+  person_price = defaultdict(list)
+  quit_words = ["yes", "Yes", "y", "Y", "YES"]
+  quit = "no"
+  while True:
+    name = input("What is your name? ")
+    person_quit = "no"
+    while True:
+      item = input("What is an item you bought? ")
+      person_price[name].append(item)
+      person_quit = input("Done? ")
+      if person_quit in quit_words:
+        break
+    quit = input("Exit? ")
+    if quit in quit_words:
+      break
+  return person_price
+
+person_price = get_person_price()
+print(person_price)
+
+def get_total_counts(person_price, item_price):
+  item_counts = defaultdict(list)
+  for item in item_price:
+    item_counts[item] = [0]
+  for item in item_price:
+    for person in person_price:
+      if item in person_price[person]:
+        item_counts[item][0] += 1
+  return item_counts
+
+total_counts = get_total_counts(person_price, item_price)
+print(total_counts)
+
+def payouts(person_price, total_counts, item_price):
+  person_payouts = defaultdict(int)
+  for person in person_price:
+    person_payouts[person] += 1
+
+
+
+
+
 
 
